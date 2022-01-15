@@ -1,8 +1,8 @@
 export class Computer {
   private memory: Array<number> = [];
   private pointer: number = 0;
-  private input: number;
-  output: number;
+  private input: number | undefined;
+  output: number | undefined;
   constructor(memory: Array<number>) {
     this.memory = memory;
   }
