@@ -1,19 +1,32 @@
 export class Computer {
   private memory: Array<number> = [];
   private pointer: number = 0;
-  private input: number | undefined;
-  output: number | undefined;
+  public inputs: number[] = [];
+  output: number[] = [];
+  halted: boolean = false;
   constructor(memory: Array<number>) {
-    this.memory = memory;
+    this.memory.push(...memory);
   }
 
-  public run(input: number) {
-    this.input = input;
+  public setInput(inputs: number[]) {
+    this.inputs.push(...inputs);
+  }
+
+  public run(): number {
     while (this.memory[this.pointer] != 99) {
       this.processOpcode();
     }
+    return this.output[0];
+  }
 
-    return this.output;
+  public runWithPause(): number {
+    this.output = [];
+    while (this.memory[this.pointer] != 99 && this.output.length === 0) {
+      this.processOpcode();
+    }
+    if (this.memory[this.pointer] % 100 === 99) this.halted = true;
+
+    return this.output[0];
   }
 
   private processOpcode() {
@@ -56,7 +69,7 @@ export class Computer {
         break;
 
       case 6:
-        if (value1 == 0) {
+        if (value1 === 0) {
           this.pointer = value2;
           break;
         }
@@ -64,17 +77,17 @@ export class Computer {
         break;
 
       case 3:
-        this.memory[arg1] = this.input;
+        this.memory[arg1] = this.inputs.shift();
         this.pointer += 2;
         break;
       case 4:
-        console.log(value1);
-        this.output = value1;
+        //console.log(value1);
+        this.output.push(value1);
         this.pointer += 2;
         break;
 
       default:
-        console.log("unimplemented opcode: " + opcode);
+        console.log("invalid opcode: " + opcode);
     }
   }
 }

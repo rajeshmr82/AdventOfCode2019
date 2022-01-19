@@ -1,5 +1,5 @@
 import run from "aocrunner";
-import { Computer } from "./Computer.js";
+import { Computer } from "../common/Computer.js";
 
 const parseInput = (rawInput: string) => rawInput;
 
@@ -7,14 +7,16 @@ const part1 = (rawInput: string) => {
   const input = parseInput(rawInput);
   const integers = input.split(",").map(Number);
   const computer = new Computer(integers);
-  return computer.run(1);
+  computer.setInput([1]);
+  return computer.run();
 };
 
 const part2 = (rawInput: string) => {
   const input = parseInput(rawInput);
   const integers = input.split(",").map(Number);
   const computer = new Computer(integers);
-  return computer.run(5);
+  computer.setInput([5]);
+  return computer.run();
 };
 
 run({
