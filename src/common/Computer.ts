@@ -4,6 +4,7 @@ export class Computer {
   public inputs: number[] = [];
   output: number[] = [];
   halted: boolean = false;
+  base: number = 0;
   constructor(memory: Array<number>) {
     this.memory.push(...memory);
   }
@@ -13,9 +14,10 @@ export class Computer {
   }
 
   public run(): number {
-    while (this.memory[this.pointer] != 99) {
+    while (!this.halted) {
       this.processOpcode();
     }
+
     return this.output[0];
   }
 
@@ -29,63 +31,98 @@ export class Computer {
     return this.output[0];
   }
 
+  private getParameter(position: number): number {
+    const instruction = this.memory[this.pointer].toString().padStart(5, "0");
+    const mode = instruction[3 - position],
+      arg = this.memory[Number(this.pointer) + Number(position)];
+
+    if (mode === "0") {
+      return this.memory[arg] || 0;
+    } else if (mode === "1") {
+      return arg;
+    } else if (mode === "2") {
+      return this.memory[arg + this.base] || 0;
+    }
+
+    return -1;
+  }
+
+  private setParameter(position: number, value: number) {
+    const instruction = this.memory[this.pointer].toString().padStart(5, "0");
+    const mode = instruction[3 - position],
+      arg = this.memory[Number(this.pointer) + Number(position)];
+
+    if (mode === "0") {
+      this.memory[arg] = value;
+    } else if (mode === "2") {
+      this.memory[arg + Number(this.base)] = value;
+    } else {
+      console.log("Invalid. Destination cannot be in direct mode");
+    }
+  }
+
   private processOpcode() {
     const instruction = this.memory[this.pointer].toString().padStart(4, "0");
-    const opcode = parseInt(instruction.substring(2));
-    const flag1 = instruction[1],
-      flag2 = instruction[0];
-    const arg1 = this.memory[this.pointer + 1],
-      arg2 = this.memory[this.pointer + 2],
-      arg3 = this.memory[this.pointer + 3];
-
-    const value1 = flag1 === "1" ? arg1 : this.memory[arg1],
-      value2 = flag2 === "1" ? arg2 : this.memory[arg2];
+    const opcode = this.memory[this.pointer] % 100;
 
     switch (opcode) {
       case 1:
-        this.memory[arg3] = value1 + value2;
+        this.setParameter(3, this.getParameter(1) + this.getParameter(2));
         this.pointer += 4;
         break;
       case 2:
-        this.memory[arg3] = value1 * value2;
+        this.setParameter(3, this.getParameter(1) * this.getParameter(2));
         this.pointer += 4;
         break;
       case 7:
-        this.memory[arg3] = value1 < value2 ? 1 : 0;
+        if (this.getParameter(1) < this.getParameter(2)) {
+          this.setParameter(3, 1);
+        } else {
+          this.setParameter(3, 0);
+        }
         this.pointer += 4;
         break;
-
       case 8:
-        this.memory[arg3] = value1 == value2 ? 1 : 0;
+        if (this.getParameter(1) == this.getParameter(2)) {
+          this.setParameter(3, 1);
+        } else {
+          this.setParameter(3, 0);
+        }
         this.pointer += 4;
         break;
-
       case 5:
-        if (value1 != 0) {
-          this.pointer = value2;
-          break;
+        if (this.getParameter(1) != 0) {
+          this.pointer = this.getParameter(2);
+        } else {
+          this.pointer += 3;
         }
-        this.pointer += 3;
         break;
-
       case 6:
-        if (value1 === 0) {
-          this.pointer = value2;
-          break;
+        if (this.getParameter(1) === 0) {
+          this.pointer = this.getParameter(2);
+        } else {
+          this.pointer += 3;
         }
-        this.pointer += 3;
         break;
-
       case 3:
-        this.memory[arg1] = this.inputs.shift();
+        this.setParameter(1, this.inputs.shift() || 0);
         this.pointer += 2;
         break;
       case 4:
-        //console.log(value1);
-        this.output.push(value1);
+        console.log(`Output ${this.getParameter(1)}`);
+
+        this.output.push(this.getParameter(1));
+        console.log(this.output[this.output.length - 1]);
         this.pointer += 2;
         break;
-
+      case 9:
+        this.base += this.getParameter(1);
+        this.pointer += 2;
+        break;
+      case 99:
+        this.halted = true;
+        this.pointer += 1;
+        break;
       default:
         console.log("invalid opcode: " + opcode);
     }
