@@ -13,6 +13,10 @@ export class Computer {
     this.inputs.push(...inputs);
   }
 
+  public getOutput(): number[] {
+    return this.output;
+  }
+
   public run(): number {
     while (!this.halted) {
       this.processOpcode();
@@ -109,10 +113,8 @@ export class Computer {
         this.pointer += 2;
         break;
       case 4:
-        console.log(`Output ${this.getParameter(1)}`);
-
         this.output.push(this.getParameter(1));
-        console.log(this.output[this.output.length - 1]);
+        //console.log(this.output[this.output.length - 1]);
         this.pointer += 2;
         break;
       case 9:

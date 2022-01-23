@@ -1,32 +1,24 @@
 import run from "aocrunner";
 import { count } from "console";
 import { stat } from "fs";
+import { Coordinate } from "../common/Coordinate";
 
 const parseInput = (rawInput: string) => rawInput;
 
-class Location {
-  x: number;
-  y: number;
-  constructor(x: number, y: number) {
-    this.x = x;
-    this.y = y;
-  }
-}
-
 const parseAsteriods = (input: string[]) => {
-  let asteroids: Location[] = [];
+  let asteroids: Coordinate[] = [];
   for (let i = 0; i < input.length; i++) {
     const row = input[i];
     for (let j = 0; j < row.length; j++) {
       if (input[i][j] == "#") {
-        asteroids.push(new Location(j, i));
+        asteroids.push(new Coordinate(j, i));
       }
     }
   }
   return asteroids;
 };
 
-const getAngle = (a: Location, b: Location) => {
+const getAngle = (a: Coordinate, b: Coordinate) => {
   let angle =
     ((Math.atan2(b.y - a.y, b.x - a.x) * 180) / Math.PI + 90 + 360) % 360;
   return {
@@ -37,8 +29,8 @@ const getAngle = (a: Location, b: Location) => {
 };
 
 const getVisibleAsteriods = (
-  asteroid: Location,
-  asteroids: Location[],
+  asteroid: Coordinate,
+  asteroids: Coordinate[],
 ): any => {
   let allOthers = asteroids
     .map((o) => getAngle(asteroid, o))
@@ -64,7 +56,7 @@ const getVisibleAsteriods = (
 
 const part1 = (rawInput: string) => {
   const input = parseInput(rawInput).split("\n");
-  let asteroids: Location[] = parseAsteriods(input);
+  let asteroids: Coordinate[] = parseAsteriods(input);
 
   const visibleCount = asteroids.map((asteroid) => {
     return getVisibleAsteriods(asteroid, asteroids);
@@ -80,7 +72,7 @@ const part1 = (rawInput: string) => {
 
 const part2 = (rawInput: string) => {
   const input = parseInput(rawInput).split("\n");
-  let asteroids: Location[] = parseAsteriods(input);
+  let asteroids: Coordinate[] = parseAsteriods(input);
 
   const visibleAsteroids = asteroids.map((asteroid) => {
     return getVisibleAsteriods(asteroid, asteroids);
