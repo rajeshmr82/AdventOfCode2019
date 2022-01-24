@@ -65,6 +65,10 @@ export class Computer {
     }
   }
 
+  public set(position: number, value: number) {
+    this.memory[position] = value;
+  }
+
   private processOpcode() {
     const instruction = this.memory[this.pointer].toString().padStart(4, "0");
     const opcode = this.memory[this.pointer] % 100;
