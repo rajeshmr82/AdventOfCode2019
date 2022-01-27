@@ -1,8 +1,5 @@
 import run from "aocrunner";
-import { dir } from "console";
-import { Dir } from "fs";
 import { Computer } from "../common/Computer.js";
-import { Coordinate } from "../common/Coordinate.js";
 
 const parseInput = (rawInput: string) => rawInput;
 
